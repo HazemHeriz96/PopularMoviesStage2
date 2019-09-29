@@ -182,4 +182,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         myIntent.putExtra("movieItem", movieItem);
         startActivity(myIntent);
     }
+     @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
 }
