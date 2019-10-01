@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,16 +26,19 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.ListItemClickListener {
 
+
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final String SORT_POPULAR = "popular";
     private static final String SORT_TOP_RATED = "top_rated";
     private static final String SORT_FAVORITE = "favorite";
     private static String currentSort = SORT_POPULAR;
-
+    private static final String LIFECYCLE_CALLBACKS_TEXT_KEY = "callbacks";
     private ArrayList<MoviesClass> movieList;
-
+    private static final String ON_SAVE_INSTANCE_STATE = "onSaveInstanceState";
     private MovieAdapter mMovieAdapter;
+    GridLayoutManager layoutManager;
+    private int scrollPosition;
 
     //Favorite movies
     private List<FavoriteMovieEntity> favMovs; // = new ArrayList<FavoriteMovieEntity>();
@@ -44,12 +48,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(LIFECYCLE_CALLBACKS_TEXT_KEY)) {
+                scrollPosition=savedInstanceState.getInt("LIFECYCLE_CALLBACKS_TEXT_KEY");
+            }
+            }
         //recyclerview
         RecyclerView mMovieRecyclerView = (RecyclerView) findViewById(R.id.rv_main);
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        layoutManager = new GridLayoutManager(this, 3);
+
+        layoutManager.scrollToPositionWithOffset(scrollPosition,0);
+
         mMovieRecyclerView.setLayoutManager(layoutManager);
         mMovieRecyclerView.setHasFixedSize(true);
-
         mMovieAdapter = new MovieAdapter(movieList, this, this);
         mMovieRecyclerView.setAdapter(mMovieAdapter);
 
@@ -182,13 +193,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.List
         myIntent.putExtra("movieItem", movieItem);
         startActivity(myIntent);
     }
-     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-    }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        int POSITION=layoutManager.findFirstVisibleItemPosition();
+        outState.putInt(LIFECYCLE_CALLBACKS_TEXT_KEY, POSITION);
     }
+
+
 }
